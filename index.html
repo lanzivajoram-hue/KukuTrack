@@ -3,581 +3,307 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>KukuTrack - Broiler Farm Record Sheet</title>
-  <style><link rel="manifest" href="manifest.json">
+  <title>Broiler Farm Tracker</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    /* CSS Variables for Dynamic Themes */
     :root {
-      --primary-color: #2e7d32;
-      --primary-dark: #1b5e20;
-      --accent-color: #f57c00;
-      --bg-gradient: linear-gradient(135deg, #e8f5e9 0%, #c8e6c9 100%);
+      --bg-color: #f4f6f8;
       --card-bg: #ffffff;
-      --text-main: #2c3e50;
-      --border-color: #cfd8dc;
-      --header-bg: #f1f8e9;
+      --text-color: #333333;
+      --primary-color: #2d6a4f;
+      --primary-hover: #1b4332;
+      --stat-bg: #e8f5e9;
+      --base-font-size: 16px;
     }
 
-    body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 15px;
-      background: var(--bg-gradient);
-      color: var(--text-main);
-      min-height: 100vh;
+    /* Theme Classes */
+    body.theme-dark {
+      --bg-color: #121212;
+      --card-bg: #1e1e1e;
+      --text-color: #e0e0e0;
+      --primary-color: #4caf50;
+      --primary-hover: #388e3c;
+      --stat-bg: #2e3b2f;
     }
 
-    /* App Header Banner */
-    .app-header {
-      max-width: 900px;
-      margin: 0 auto 15px auto;
-      background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 100%);
-      color: white;
-      padding: 15px 20px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+    body.theme-ocean {
+      --bg-color: #eef4f8;
+      --card-bg: #ffffff;
+      --text-color: #1c2d37;
+      --primary-color: #0077b6;
+      --primary-hover: #023e8a;
+      --stat-bg: #e0f2fe;
     }
-    .app-brand {
-      display: flex;
-      align-items: center;
-      gap: 15px;
+
+    body.theme-sunset {
+      --bg-color: #fff8f0;
+      --card-bg: #ffffff;
+      --text-color: #3d2c2e;
+      --primary-color: #d90429;
+      --primary-hover: #ef233c;
+      --stat-bg: #ffe5ec;
     }
-    .app-icon {
-      width: 50px;
-      height: 50px;
-      background: #ffffff;
-      border-radius: 12px;
+
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+      background: var(--bg-color); 
+      margin: 0; 
+      padding: 16px; 
+      color: var(--text-color);
+      font-size: var(--base-font-size);
+    }
+
+    /* Profile Section Header */
+    .profile-header {
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-    }
-    .app-title h1 {
-      margin: 0;
-      font-size: 1.5rem;
-      letter-spacing: 0.5px;
-    }
-    .app-title p {
-      margin: 2px 0 0 0;
-      font-size: 0.85rem;
-      opacity: 0.9;
+      gap: 12px;
+      margin-bottom: 16px;
     }
 
-    /* Settings Button & Modal Styling */
-    .settings-btn {
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: white;
-      font-size: 1.5rem;
-      padding: 8px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: background 0.2s ease;
-    }
-    .settings-btn:hover {
-      background: rgba(255, 255, 255, 0.35);
+    .avatar-img {
+      width: 55px;
+      height: 55px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid var(--primary-color);
+      background: #ccc;
     }
 
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 100;
-      justify-content: center;
-      align-items: center;
-    }
-    .modal-content {
-      background: white;
-      padding: 20px;
-      border-radius: 12px;
-      width: 90%;
-      max-width: 450px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.2);
-    }
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
-      padding-bottom: 10px;
-      margin-bottom: 15px;
-    }
-    .modal-header h2 {
-      margin: 0;
-      font-size: 1.2rem;
-      color: var(--primary-dark);
-    }
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: #888;
-    }
-
-    /* Container Card */
-    .grid-container {
-      max-width: 900px;
-      margin: 0 auto;
-      background: var(--card-bg);
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-      border: 1px solid rgba(0,0,0,0.05);
-    }
-
-    .section {
-      border-bottom: 1px solid var(--border-color);
-      padding: 15px 20px;
-    }
-    .section:last-child {
-      border-bottom: none;
-    }
-
-    .section-title {
-      font-weight: 700;
-      font-size: 0.95rem;
-      color: var(--primary-dark);
-      margin: 0 0 10px 0;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .header-block {
-      display: flex;
-      gap: 15px;
-      background-color: var(--header-bg);
-    }
-
-    label {
-      font-weight: 600;
-      font-size: 0.8rem;
-      text-transform: uppercase;
-      display: block;
-      margin-bottom: 5px;
-      color: #546e7a;
-    }
-
-    input[type="text"], input[type="number"], input[type="date"], select {
-      width: 100%;
-      padding: 8px 10px;
-      border: 1px solid var(--border-color);
-      border-radius: 6px;
-      box-sizing: border-box;
-      font-size: 0.95rem;
-      transition: all 0.2s ease;
-      background: #fafafa;
-    }
-    input:focus, select:focus {
-      outline: none;
-      border-color: var(--primary-color);
-      background: #ffffff;
-      box-shadow: 0 0 0 3px rgba(46, 125, 50, 0.15);
-    }
-
-    /* Daily Log Table (Days 1 - 42) */
-    .table-container {
-      max-height: 320px;
-      overflow-y: auto;
-      border: 1px solid var(--border-color);
-      border-radius: 8px;
-      margin-top: 8px;
-    }
-    table.daily-log {
-      width: 100%;
-      border-collapse: collapse;
-      text-align: center;
-    }
-    table.daily-log th, table.daily-log td {
-      border: 1px solid #e0e0e0;
-      padding: 6px;
-      font-size: 0.85rem;
-    }
-    table.daily-log th {
-      background-color: var(--header-bg);
-      color: var(--primary-dark);
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      font-weight: 700;
-    }
-    table.daily-log input {
-      padding: 4px;
-      text-align: center;
-    }
-    table.daily-log tfoot td {
-      background-color: #f1f8e9;
-      font-weight: bold;
-      position: sticky;
-      bottom: 0;
-      z-index: 1;
-      border-top: 2px solid var(--primary-color);
-      color: var(--primary-dark);
-    }
-
-    .flex-row {
-      display: grid;
-      grid-template-columns: 2.5fr 1fr;
-      gap: 15px;
-    }
-    .flex-row .col-left {
-      border-right: 1px solid var(--border-color);
-      padding-right: 15px;
-    }
-
-    .item-group {
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      gap: 10px;
-      align-items: center;
-      margin-bottom: 10px;
-    }
-
-    .vitamins-list {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-    .vitamin-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-    .vitamin-item span {
-      font-weight: bold;
-      color: var(--primary-color);
-    }
-
-    .subtotal {
-      font-weight: bold;
-      font-size: 0.9rem;
-      text-align: right;
-      padding: 6px 0;
-      color: var(--accent-color);
-    }
+    h1, h2 { text-align: center; color: var(--primary-color); margin-bottom: 12px; margin-top: 0; }
+    .card { background: var(--card-bg); padding: 16px; border-radius: 12px; margin-bottom: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    label { font-weight: bold; display: block; margin-top: 10px; font-size: 0.85em; }
+    input, select, button { width: 100%; padding: 12px; margin-top: 4px; border-radius: 6px; border: 1px solid #ccc; box-sizing: border-box; font-size: 1em; background: var(--card-bg); color: var(--text-color); }
+    button { background: var(--primary-color); color: white; border: none; font-weight: bold; margin-top: 14px; cursor: pointer; }
+    button.secondary { opacity: 0.9; }
+    button.export { background: #1d3557; color: white; }
+    button:active { opacity: 0.8; }
     
-    .grand-total-block {
-      background: linear-gradient(135deg, #1b5e20 0%, #2e7d32 100%);
-      color: #ffffff;
-      padding: 18px 20px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: 1.15rem;
-      font-weight: bold;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-action {
-      background: var(--primary-color);
-      color: white;
-      border: none;
-      padding: 10px 15px;
-      border-radius: 6px;
-      font-weight: bold;
-      cursor: pointer;
-      width: 100%;
-      margin-top: 10px;
-    }
-    .btn-danger {
-      background: #d32f2f;
-    }
-
-    @media (max-width: 600px) {
-      .flex-row {
-        grid-template-columns: 1fr;
-      }
-      .flex-row .col-left {
-        border-right: none;
-        padding-right: 0;
-        border-bottom: 1px solid var(--border-color);
-        padding-bottom: 15px;
-      }
-    }
+    .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; text-align: center; }
+    .stat-box { background: var(--stat-bg); padding: 10px; border-radius: 8px; }
+    .stat-number { font-size: 1.2em; font-weight: bold; color: var(--primary-color); margin-top: 4px; }
+    .sub-text { font-size: 0.75em; opacity: 0.8; margin-top: 2px; }
   </style>
-
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect width='512' height='512' rx='100' fill='%232e7d32'/><circle cx='256' cy='256' r='180' fill='%23ffffff'/><text x='50%' y='58%' dominant-baseline='middle' text-anchor='middle' font-size='220'>🐔</text></svg>">
 </head>
 <body>
 
-<!-- APP HEADER -->
-<div class="app-header">
-  <div class="app-brand">
-    <div class="app-icon">
-      <svg width="36" height="36" viewBox="0 0 512 512">
-        <rect width="512" height="512" rx="100" fill="#2e7d32"/>
-        <circle cx="256" cy="256" r="180" fill="#ffffff"/>
-        <text x="50%" y="58%" dominant-baseline="middle" text-anchor="middle" font-size="220">🐔</text>
-      </svg>
-    </div>
-    <div class="app-title">
-      <h1 id="displayFarmName">KukuTrack</h1>
-      <p>Broiler Farm Batch Record Sheet</p>
-    </div>
-  </div>
-  <button class="settings-btn" onclick="toggleSettings(true)">⚙️</button>
-</div>
-
-<!-- SETTINGS MODAL -->
-<div class="modal-overlay" id="settingsModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>⚙️ App Settings</h2>
-      <button class="close-btn" onclick="toggleSettings(false)">&times;</button>
-    </div>
-    <div style="display: flex; flex-direction: column; gap: 12px;">
-      <div>
-        <label>Farm / Batch Name</label>
-        <input type="text" id="settingFarmName" value="KukuTrack" placeholder="e.g. Green Valley Batch #4">
-      </div>
-      <div>
-        <label>Currency Symbol</label>
-        <select id="settingCurrency">
-          <option value="KSH">KSH (Kenyan Shilling)</option>
-          <option value="USD">$ (US Dollar)</option>
-          <option value="EUR">€ (Euro)</option>
-          <option value="UGX">UGX (Ugandan Shilling)</option>
-          <option value="TSH">TSH (Tanzanian Shilling)</option>
-        </select>
-      </div>
-      <button class="btn-action" onclick="saveSettings()">Save Settings</button>
-      <button class="btn-action btn-danger" onclick="clearBatchData()">Reset Current Batch Data</button>
-    </div>
-  </div>
-</div>
-
-<div class="grid-container">
-  
-  <!-- BATCH DETAILS -->
-  <div class="section header-block">
-    <div style="flex: 1;">
-      <label>Arrival Date</label>
-      <input type="date" id="arrivalDate">
-    </div>
-    <div style="flex: 1;">
-      <label>Total Chicks Arrived</label>
-      <input type="number" id="chicksArrived" placeholder="e.g. 1000">
-    </div>
+  <!-- Header with Avatar -->
+  <div class="profile-header">
+    <img id="avatarDisplay" class="avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23666'><path d='M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z'/></svg>" alt="Profile Picture">
+    <h1>Broiler Tracker</h1>
   </div>
 
-  <!-- DAYS 1 TO 42 DAILY TRACKER -->
-  <div class="section">
-    <div class="section-title">📊 Daily Log (Days 1 to 42)</div>
-    <div class="table-container">
-      <table class="daily-log">
-        <thead>
-          <tr>
-            <th>Day</th>
-            <th>Mortality Per Day</th>
-            <th>Feed Intake Per Day (kg)</th>
-          </tr>
-        </thead>
-        <tbody id="daysTableBody">
-          <!-- Dynamically generated rows -->
-        </tbody>
-        <tfoot>
-          <tr>
-            <td>TOTAL AT DAY 42</td>
-            <td><input type="number" id="totalMortality" placeholder="0" readonly style="border:none; font-weight:bold; background:transparent;"></td>
-            <td><input type="number" id="totalFeed" placeholder="0" readonly style="border:none; font-weight:bold; background:transparent;"></td>
-          </tr>
-        </tfoot>
-      </table>
+  <!-- Dashboard Summary -->
+  <div class="card">
+    <h2>Flock Summary</h2>
+    <div class="stat-grid">
+      <div class="stat-box"><div>Live Birds</div><div class="stat-number" id="liveBirds">0</div></div>
+      <div class="stat-box"><div>Mortality</div><div class="stat-number" id="mortalityRate">0%</div></div>
+      <div class="stat-box"><div>Total Feed</div><div class="stat-number" id="totalFeed">0 kg</div></div>
+      <div class="stat-box"><div>Total Cost</div><div class="stat-number" id="totalCost">0</div></div>
+      <div class="stat-box"><div>Estimated FCR</div><div class="stat-number" id="fcrVal">0.00</div><div class="sub-text">Feed (kg) / Weight (kg)</div></div>
+      <div class="stat-box"><div>Net Profit</div><div class="stat-number" id="netProfit">0</div></div>
     </div>
+    <button class="export" onclick="exportToCSV()">Export Data to CSV (Excel)</button>
   </div>
 
-  <!-- FEED CONSUMPTION & COST -->
-  <div class="section flex-row">
-    <div class="col-left">
-      <div class="section-title">🌾 Feed Consumption (Day 42)</div>
-      
-      <div class="item-group">
-        <label>Starter Crumbs Used</label>
-        <input type="number" class="feed-qty" id="starterQty" placeholder="Bags">
-      </div>
-      <div class="item-group">
-        <label>Grower Pellets Used</label>
-        <input type="number" class="feed-qty" id="growerQty" placeholder="Bags">
-      </div>
-      <div class="item-group">
-        <label>Finisher Pellets Used</label>
-        <input type="number" class="feed-qty" id="finisherPelletsQty" placeholder="Bags">
-      </div>
-      <div class="item-group">
-        <label>Finisher Mash Used</label>
-        <input type="number" class="feed-qty" id="finisherMashQty" placeholder="Bags">
-      </div>
-    </div>
+  <!-- App Customization & Settings -->
+  <div class="card">
+    <h2>App Settings</h2>
     
-    <div>
-      <div class="section-title">💰 Feed Costs (<span class="currencyLabel">KSH</span>)</div>
-      <div class="item-group"><input type="number" class="cost-input feed-cost" id="starterCost" placeholder="Cost"></div>
-      <div class="item-group"><input type="number" class="cost-input feed-cost" id="growerCost" placeholder="Cost"></div>
-      <div class="item-group"><input type="number" class="cost-input feed-cost" id="finisherPelletsCost" placeholder="Cost"></div>
-      <div class="item-group"><input type="number" class="cost-input feed-cost" id="finisherMashCost" placeholder="Cost"></div>
-      <div class="subtotal">Subtotal: <span class="currencyLabel">KSH</span> <span id="feedSubtotal">0</span></div>
-    </div>
+    <label>Profile Picture</label>
+    <input type="file" id="avatarInput" accept="image/*" onchange="updateProfilePic(event)">
+
+    <label>App Theme</label>
+    <select id="themeSelect" onchange="changeTheme(this.value)">
+      <option value="forest">Forest Green (Default)</option>
+      <option value="dark">Dark Mode</option>
+      <option value="ocean">Ocean Blue</option>
+      <option value="sunset">Warm Sunset</option>
+    </select>
+
+    <label>Font Size</label>
+    <select id="fontSizeSelect" onchange="changeFontSize(this.value)">
+      <option value="14px">Small</option>
+      <option value="16px" selected>Medium (Default)</option>
+      <option value="18px">Large</option>
+      <option value="20px">Extra Large</option>
+    </select>
   </div>
 
-  <!-- HEATING & BEDDING MATERIALS -->
-  <div class="section flex-row">
-    <div class="col-left">
-      <div class="section-title">🔥 Heating & Bedding</div>
+  <!-- Start New Batch -->
+  <div class="card">
+    <h2>Start New Batch</h2>
+    <label>Chicks Arrived</label>
+    <input type="number" id="initChicks" placeholder="e.g. 500">
+    <label>Chick Cost</label>
+    <input type="number" id="initCost" placeholder="e.g. 40000">
+    <button onclick="startBatch()">Initialize Batch</button>
+  </div>
+
+  <!-- Daily Log Entry -->
+  <div class="card">
+    <h2>Log Daily Record</h2>
+    <label>Mortality Today</label>
+    <input type="number" id="dailyMortality" value="0">
+    <label>Feed Intake Today (kg)</label>
+    <input type="number" id="dailyFeed" value="0">
+    <label>Feed Expense Today</label>
+    <input type="number" id="feedExpense" value="0">
+    <button class="secondary" onclick="addLog()">Save Daily Entry</button>
+  </div>
+
+  <!-- Sales Entry -->
+  <div class="card">
+    <h2>Log Harvest & Sales</h2>
+    <label>Birds Sold</label>
+    <input type="number" id="soldCount" placeholder="e.g. 100">
+    <label>Total Live Weight Sold (kg)</label>
+    <input type="number" id="soldWeight" placeholder="e.g. 150">
+    <label>Total Revenue Received</label>
+    <input type="number" id="salesRevenue" placeholder="e.g. 45000">
+    <button class="secondary" onclick="addSale()">Save Sale Record</button>
+  </div>
+
+  <script>
+    let data = JSON.parse(localStorage.getItem('broilerData')) || { initialChicks: 0, initialCost: 0, logs: [], sales: [] };
+    let settings = JSON.parse(localStorage.getItem('broilerSettings')) || { theme: 'forest', fontSize: '16px', avatar: '' };
+
+    function applySettings() {
+      // Apply theme
+      document.body.className = '';
+      if (settings.theme !== 'forest') {
+        document.body.classList.add('theme-' + settings.theme);
+      }
+      document.getElementById('themeSelect').value = settings.theme;
+
+      // Apply font size
+      document.documentElement.style.setProperty('--base-font-size', settings.fontSize);
+      document.getElementById('fontSizeSelect').value = settings.fontSize;
+
+      // Apply profile picture
+      if (settings.avatar) {
+        document.getElementById('avatarDisplay').src = settings.avatar;
+      }
+    }
+
+    function saveSettings() {
+      localStorage.setItem('broilerSettings', JSON.stringify(settings));
+    }
+
+    function changeTheme(newTheme) {
+      settings.theme = newTheme;
+      saveSettings();
+      applySettings();
+    }
+
+    function changeFontSize(newSize) {
+      settings.fontSize = newSize;
+      saveSettings();
+      applySettings();
+    }
+
+    function updateProfilePic(event) {
+      const file = event.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          settings.avatar = e.target.result;
+          saveSettings();
+          applySettings();
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function saveData() {
+      localStorage.setItem('broilerData', JSON.stringify(data));
+      updateUI();
+    }
+
+    function startBatch() {
+      if (!confirm("Starting a new batch will reset current totals. Proceed?")) return;
+      data.initialChicks = parseInt(document.getElementById('initChicks').value) || 0;
+      data.initialCost = parseFloat(document.getElementById('initCost').value) || 0;
+      data.logs = [];
+      data.sales = [];
+      saveData();
+    }
+
+    function addLog() {
+      const mortality = parseInt(document.getElementById('dailyMortality').value) || 0;
+      const feed = parseFloat(document.getElementById('dailyFeed').value) || 0;
+      const cost = parseFloat(document.getElementById('feedExpense').value) || 0;
       
-      <div class="item-group">
-        <label>Briquettes Used</label>
-        <input type="number" id="briquettesQty" placeholder="Bags">
-      </div>
-      <div class="item-group">
-        <label>Charcoal Used</label>
-        <input type="number" id="charcoalQty" placeholder="Bags">
-      </div>
-      <div class="item-group">
-        <label>Sawdust Used</label>
-        <input type="number" id="sawdustQty" placeholder="Bags">
-      </div>
-    </div>
-
-    <div>
-      <div class="section-title">💰 Material Costs (<span class="currencyLabel">KSH</span>)</div>
-      <div class="item-group"><input type="number" class="cost-input material-cost" id="briquettesCost" placeholder="Cost"></div>
-      <div class="item-group"><input type="number" class="cost-input material-cost" id="charcoalCost" placeholder="Cost"></div>
-      <div class="item-group"><input type="number" class="cost-input material-cost" id="sawdustCost" placeholder="Cost"></div>
-      <div class="subtotal">Subtotal: <span class="currencyLabel">KSH</span> <span id="materialSubtotal">0</span></div>
-    </div>
-  </div>
-
-  <!-- VITAMINS USED -->
-  <div class="section">
-    <div class="section-title">💊 Vitamins Used</div>
-    <div class="vitamins-list">
-      <div class="vitamin-item"><span>1.</span><input type="text" id="vit1" placeholder="Vitamin Name / Dose"></div>
-      <div class="vitamin-item"><span>2.</span><input type="text" id="vit2" placeholder="Vitamin Name / Dose"></div>
-      <div class="vitamin-item"><span>3.</span><input type="text" id="vit3" placeholder="Vitamin Name / Dose"></div>
-      <div class="vitamin-item"><span>4.</span><input type="text" id="vit4" placeholder="Vitamin Name / Dose"></div>
-    </div>
-  </div>
-
-  <!-- UTILITIES -->
-  <div class="section" style="display: flex; justify-content: space-between; align-items: center;">
-    <div class="section-title" style="margin: 0;">⚡ Electricity Bill (<span class="currencyLabel">KSH</span>):</div>
-    <input type="number" class="cost-input" id="electricityBill" style="max-width: 250px;" placeholder="Amount">
-  </div>
-
-  <!-- AUTOMATED GRAND TOTAL -->
-  <div class="grand-total-block">
-    <span>GRAND TOTAL PRODUCTION COST:</span>
-    <span><span class="currencyLabel">KSH</span> <span id="grandTotal">0</span></span>
-  </div>
-
-</div>
-
-<script>
-  let activeCurrency = 'KSH';
-
-  // Toggle Modal
-  function toggleSettings(show) {
-    document.getElementById('settingsModal').style.display = show ? 'flex' : 'none';
-  }
-
-  // Save Settings
-  function saveSettings() {
-    const farmName = document.getElementById('settingFarmName').value || 'KukuTrack';
-    activeCurrency = document.getElementById('settingCurrency').value;
-
-    document.getElementById('displayFarmName').innerText = farmName;
-    document.querySelectorAll('.currencyLabel').forEach(el => el.innerText = activeCurrency);
-    
-    localStorage.setItem('kukutrack_farmName', farmName);
-    localStorage.setItem('kukutrack_currency', activeCurrency);
-
-    toggleSettings(false);
-  }
-
-  // Generate 42 Day Inputs
-  const tableBody = document.getElementById('daysTableBody');
-  for (let i = 1; i <= 42; i++) {
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td><strong>Day ${i}</strong></td>
-      <td><input type="number" id="mort_day_${i}" class="daily-mortality" placeholder="0" min="0"></td>
-      <td><input type="number" id="feed_day_${i}" class="daily-feed" placeholder="0" min="0" step="0.1"></td>
-    `;
-    tableBody.appendChild(row);
-  }
-
-  // Calculate Daily Sums
-  function calculateDailyTotals() {
-    let totalMort = 0;
-    let totalFeedKg = 0;
-
-    document.querySelectorAll('.daily-mortality').forEach(input => {
-      totalMort += parseFloat(input.value) || 0;
-    });
-
-    document.querySelectorAll('.daily-feed').forEach(input => {
-      totalFeedKg += parseFloat(input.value) || 0;
-    });
-
-    document.getElementById('totalMortality').value = totalMort;
-    document.getElementById('totalFeed').value = totalFeedKg.toFixed(1);
-  }
-
-  document.getElementById('daysTableBody').addEventListener('input', calculateDailyTotals);
-
-  // Calculate Cost Totals
-  function calculateTotals() {
-    const getVal = (id) => parseFloat(document.getElementById(id).value) || 0;
-
-    const feedTotal = getVal('starterCost') + getVal('growerCost') + getVal('finisherPelletsCost') + getVal('finisherMashCost');
-    document.getElementById('feedSubtotal').innerText = feedTotal.toLocaleString();
-
-    const materialTotal = getVal('briquettesCost') + getVal('charcoalCost') + getVal('sawdustCost');
-    document.getElementById('materialSubtotal').innerText = materialTotal.toLocaleString();
-
-    const electricityCost = getVal('electricityBill');
-
-    const grandTotal = feedTotal + materialTotal + electricityCost;
-    document.getElementById('grandTotal').innerText = grandTotal.toLocaleString();
-  }
-
-  document.querySelectorAll('.cost-input').forEach(input => {
-    input.addEventListener('input', calculateTotals);
-  });
-
-  // Clear Form Data
-  function clearBatchData() {
-    if (confirm("Are you sure you want to clear all data for this batch?")) {
-      document.querySelectorAll('input').forEach(i => i.value = '');
-      calculateDailyTotals();
-      calculateTotals();
-      localStorage.removeItem('kukutrack_form_data');
-      toggleSettings(false);
+      data.logs.push({ date: new Date().toLocaleDateString(), mortality, feed, cost });
+      document.getElementById('dailyMortality').value = "0";
+      document.getElementById('dailyFeed').value = "0";
+      document.getElementById('feedExpense').value = "0";
+      saveData();
     }
-  }
 
-  // Load Saved Settings on Startup
-  window.onload = function() {
-    const savedName = localStorage.getItem('kukutrack_farmName');
-    const savedCurrency = localStorage.getItem('kukutrack_currency');
-
-    if (savedName) {
-      document.getElementById('settingFarmName').value = savedName;
-      document.getElementById('displayFarmName').innerText = savedName;
+    function addSale() {
+      const count = parseInt(document.getElementById('soldCount').value) || 0;
+      const weight = parseFloat(document.getElementById('soldWeight').value) || 0;
+      const revenue = parseFloat(document.getElementById('salesRevenue').value) || 0;
+      
+      data.sales.push({ date: new Date().toLocaleDateString(), count, weight, revenue });
+      document.getElementById('soldCount').value = "";
+      document.getElementById('soldWeight').value = "";
+      document.getElementById('salesRevenue').value = "";
+      saveData();
     }
-    if (savedCurrency) {
-      document.getElementById('settingCurrency').value = savedCurrency;
-      activeCurrency = savedCurrency;
-      document.querySelectorAll('.currencyLabel').forEach(el => el.innerText = activeCurrency);
-    }
-  };
-</script>
 
+    function updateUI() {
+      const totalMortality = data.logs.reduce((sum, item) => sum + item.mortality, 0);
+      const totalSold = data.sales.reduce((sum, item) => sum + item.count, 0);
+      const totalWeightSold = data.sales.reduce((sum, item) => sum + item.weight, 0);
+      const totalRevenue = data.sales.reduce((sum, item) => sum + item.revenue, 0);
+      
+      const live = data.initialChicks - totalMortality - totalSold;
+      const totalFeed = data.logs.reduce((sum, item) => sum + item.feed, 0);
+      const totalFeedCost = data.logs.reduce((sum, item) => sum + item.cost, 0);
+      const grandCost = data.initialCost + totalFeedCost;
+      const profit = totalRevenue - grandCost;
+
+      const mortRate = data.initialChicks > 0 ? ((totalMortality / data.initialChicks) * 100).toFixed(1) : 0;
+      const fcr = totalWeightSold > 0 ? (totalFeed / totalWeightSold).toFixed(2) : "N/A";
+
+      document.getElementById('liveBirds').innerText = live;
+      document.getElementById('mortalityRate').innerText = mortRate + '%';
+      document.getElementById('totalFeed').innerText = totalFeed + ' kg';
+      document.getElementById('totalCost').innerText = grandCost.toLocaleString();
+      document.getElementById('fcrVal').innerText = fcr;
+      document.getElementById('netProfit').innerText = profit.toLocaleString();
+    }
+
+    function exportToCSV() {
+      let csvContent = "data:text/csv;charset=utf-8,";
+      csvContent += "Type,Date,Mortality,Feed (kg),Feed Expense,Sold Count,Sold Weight (kg),Revenue\n";
+      csvContent += `Initial Batch,${new Date().toLocaleDateString()},0,0,${data.initialCost},${data.initialChicks},0,0\n`;
+      
+      data.logs.forEach(l => {
+        csvContent += `Daily Log,${l.date},${l.mortality},${l.feed},${l.cost},0,0,0\n`;
+      });
+      
+      data.sales.forEach(s => {
+        csvContent += `Sale Record,${s.date},0,0,0,${s.count},${s.weight},${s.revenue}\n`;
+      });
+
+      const encodedUri = encodeURI(csvContent);
+      const link = document.createElement("a");
+      link.setAttribute("href", encodedUri);
+      link.setAttribute("download", `broiler_farm_data_${new Date().toISOString().slice(0,10)}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    // Initialize UI and user settings on page load
+    applySettings();
+    updateUI();
+  </script>
 </body>
-        </html>
-        
+</html>
